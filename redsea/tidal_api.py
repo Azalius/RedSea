@@ -56,6 +56,9 @@ class TidalApi(object):
     def get_album_tracks(self, album_id):
         return self._get('albums/' + str(album_id) + '/tracks')
 
+    def get_artist_tracks(self, artist_id):
+        return self._get('artists/' + str(artist_id) + '/toptracks')
+
     def get_track(self, track_id):
         return self._get('tracks/' + str(track_id))
 

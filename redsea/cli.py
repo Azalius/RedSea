@@ -65,6 +65,8 @@ def parse_media_option(urls):
                 type_ = 't'
             elif type_ == 'playlist':
                 type_ = 'p'
+            elif type_ == 'artist':
+                type_ = 'artist'
             opts.append({'type': type_, 'id': id_})
             continue
         elif ':' in url and '#' in url:

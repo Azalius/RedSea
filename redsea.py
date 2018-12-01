@@ -25,7 +25,7 @@ LOGO = """
                https://github.com/Azalius/RedSea
 \n"""
 
-MEDIA_TYPES = {'t': 'track', 'p': 'playlist', 'a': 'album', 'f': 'album'}
+MEDIA_TYPES = {'t': 'track', 'p': 'playlist', 'a': 'album', 'f': 'album', 'artist': 'artist'}
 
 
 def main():
@@ -195,6 +195,9 @@ def get_tracks(media, md, BRUTEFORCE, session_gen):
                 for item in playlistItems:
                     if item['type'] == 'track':
                         tracks.append(item['item'])
+
+            elif media['type'] == 'artist':
+                tracks = md.api.get_artist_tracks(media['id'])['items']
 
             # Album
             else:

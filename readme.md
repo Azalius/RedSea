@@ -17,10 +17,11 @@ installed. Note that you will you have to implement the Tidal lossless download 
 
 Requirements
 ------------
-* Python 3.5
+* Python 3.6
 * requests
 * mutagen
 * pycrypto
+* opencv
 
 Setting up (with pip)
 ------------------------
