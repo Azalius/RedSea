@@ -2,6 +2,8 @@ from mutagen.flac import FLAC, Picture
 from mutagen.mp4 import MP4Cover
 from mutagen.easymp4 import EasyMP4
 from mutagen.id3 import PictureType
+import cv2
+import numpy as np
 
 
 class FeaturingFormat():
@@ -94,9 +96,12 @@ class Tagger(object):
 
             pic.type = PictureType.COVER_FRONT
             pic.mime = u"image/jpeg"
-            # TODO: detect this automatically?
-            pic.width = 1280
-            pic.height = 1280
+            try :
+                img = cv2.imread(album_art_path)
+                pic.height, pic.width, channels = img.shape
+            except Exception as e:
+                pic.width = 1280
+                pic.height = 1280
             pic.depth = 24
             tagger.add_picture(pic)
         tagger.save(file_path)
