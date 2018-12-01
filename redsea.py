@@ -6,7 +6,7 @@ import redsea.cli as cli
 from redsea.mediadownloader import MediaDownloader
 from redsea.tagger import Tagger
 from redsea.tidal_api import TidalApi, TidalError
-from redsea.sessions import RedseaSessionFile
+from redsea.sessions import SimpleSessionFile
 
 from config.settings import PRESETS, BRUTEFORCEREGION
 
@@ -33,7 +33,7 @@ def main():
     args = cli.get_args()
 
     # Check for auth flag / session settings
-    RSF = RedseaSessionFile('./config/sessions.pk')
+    RSF = SimpleSessionFile('./config/sessions.pk')
     deal_with_auth(RSF, args)
 
     print(LOGO)
@@ -63,7 +63,7 @@ def main():
         print('<<< Getting {0} info... >>>'.format(MEDIA_TYPES[mt['type']]), end='\r')
         
         # Create a new TidalApi and pass it to a new MediaDownloader
-        md = MediaDownloader(TidalApi(RSF.load_session(args.account)), preset, Tagger(preset))
+        md = MediaDownloader(TidalApi(RSF.load_session()), preset, Tagger(preset))
 
         # Create a new session generator in case we need to switch sessions
         session_gen = RSF.get_session()
@@ -150,6 +150,25 @@ def main():
 
 
 def deal_with_auth(RSF, args):
+    if args.identifiant is None and args.password is None: pass
+    elif args.identifiant is not None and args.password is None:
+        print("You need to specify a password with an ID")
+    elif args.identifiant is None and args.password is not None:
+        print("You need to specify a password with an ID")
+    else:
+        try:
+            RSF.new_session("default", args.identifiant, args.password)
+        except Exception as e:
+            print("Impossible to log-in : " + str(e))
+            exit()
+    try:
+        RSF.load_session()
+    except Exception as e:
+        print("Authentication impossible : "+str(e))
+        exit()
+
+
+def deal_with_auth_old(RSF, args):
     if args.urls[0] == 'auth' and len(args.urls) == 1:
         print('\nThe "auth" command provides the following methods:')
         print('\n  list:     list the currently stored sessions')
@@ -175,6 +194,7 @@ def deal_with_auth(RSF, args):
         elif args.urls[1] == 'reauth':
             RSF.reauth()
             exit()
+
 
 
 def get_tracks(media, md, BRUTEFORCE, session_gen):

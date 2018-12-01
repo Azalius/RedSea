@@ -17,6 +17,18 @@ def get_args():
         help='Select a download preset. Defaults to Lossless only. See /config/settings.py for presets')
 
     parser.add_argument(
+        '-id',
+        '--identifiant',
+        default=None,
+        help='Specifies the Tidal ID. Needs to be passed only the first time, with a password.')
+
+    parser.add_argument(
+        '-pwd',
+        '--password',
+        default=None,
+        help='Specifies the Tidal password. Needs to be passed only the first time, with an ID.')
+
+    parser.add_argument(
         '-o',
         '--outdir',
         default='.',
@@ -28,13 +40,6 @@ def get_args():
         action='store_true',
         default=False,
         help='Brute force the download with all available accounts')
-
-
-    parser.add_argument(
-        '-a',
-        '--account',
-        default='',
-        help='Select a session/account to use. Defaults to the "default" session.')
 
     parser.add_argument(
         '-s',

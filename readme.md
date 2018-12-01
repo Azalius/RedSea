@@ -1,19 +1,12 @@
-If you are a Windows user, you might want to check out [Athame](https://github.com/svbnet/Athame), a graphical music download client. It also seems to work well on Mono, if you use Linux or OS X.
-
 RedSea
 ======
 Music downloader and tagger for Tidal. For educational use only, and may break in the future.
 
-Current state
--------------
-RedSea is currently being worked on by members of RED. Reach out to RedSudo for more info
-
 Introduction
 ------------
-RedSea is a music downloader and tagger for the Tidal music streaming service. It is designed partially as a Tidal API example ~~and partially as a proof-of-concept of the Tidal
-lossless download hack~~. Tidal seems to have fixed this hack, so you can't download FLACs on a normal subscription. :(. This repository also hosts a wildly incomplete Python Tidal
+RedSea is a music downloader and tagger for the Tidal music streaming service. It is designed partially as a Tidal API example. This repository also hosts a wildly incomplete Python Tidal
 API implementation - it is contained in `config/tidal_api.py` and only requires `requests` to be
-installed. Note that you will you have to implement the Tidal lossless download hack yourself -- you can find this in `mediadownloader.py`.
+installed.
 
 Requirements
 ------------
@@ -61,7 +54,7 @@ How to add accounts/sessions
 
 How to use
 ----------
-    usage: redsea.py [-h] [-p PRESET] [-a ACCOUNT] [-s] urls [urls ...]
+    usage: redsea.py [-h] [-id IDENTIFIANT -pwd PASSWORD] [-p PRESET] [-o DIR] [-a ACCOUNT] [-s] urls [urls ...]
 
     A music downloader for Tidal.
 
@@ -74,12 +67,18 @@ How to use
     -p PRESET, --preset PRESET
                             Select a download preset. Defaults to Lossless only.
                             See /config/settings.py for presets
-    -a ACCOUNT, --account ACCOUNT
-                            Select a session/account to use. Defaults to
-                            the "default" session. If it does not exist, you
-                            will be prompted to create one
-    -s, --skip            Pass this flag to skip track and continue when a track
-                            does not meet the requested quality
+                            
+    -id IDENTIFIANT, --identifiant IDENTIFIANT
+                            Pass the Tidal identifiant of your account. Must be use with -pwd.
+    
+    -pwd PASSWORD, --password PASSWORD
+                            Pass the Tidal password of your account. Must be use with -id.
+    
+    -s, --skip              Pass this flag to skip track and continue when a track
+                            does not meet the requested quality                          
+    -o DIR, --outidr DIR 
+                            Set DIR as the outupt directory. By default it's the
+                            same as redsea.py
 
 Tidal issues
 ------------
@@ -88,15 +87,11 @@ Tidal issues
     
 * Tracks may be tagged with an inaccurate release year; this may be because of Tidal only having the "rerelease" or "remastered" version but showing it as the original.
 
-TODO
-----
-* Filename sanitisation is overzealous
-* Playlists are treated like albums
+* Downloading an artist URL actually downloads the content of "best tracks".
+
 
 Config reference
 ----------------
-
-`BRUTEFORCEREGION`: When True, redsea will iterate through every available account and attempt to download when the default or specified session fails to download the release
 
 ### `Stock Presets`
 
