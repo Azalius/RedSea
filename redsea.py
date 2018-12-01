@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
-import json
 
 import redsea.cli as cli
 
 from redsea.mediadownloader import MediaDownloader
 from redsea.tagger import Tagger
-from redsea.tidal_api import TidalApi, TidalRequestError, TidalError
+from redsea.tidal_api import TidalApi, TidalError
 from redsea.sessions import RedseaSessionFile
 
 from config.settings import PRESETS, BRUTEFORCEREGION
@@ -23,10 +22,11 @@ LOGO = """
 |__/  |__/ \_______/ \_______/ \______/  \_______/ \_______/
 
                     (c) 2016 Joe Thatcher
-               https://github.com/svbnet/RedSea
+               https://github.com/Azalius/RedSea
 \n"""
 
-MEDIA_TYPES = {'t': 'track', 'p': 'playlist', 'a': 'album', 'f':'album'}
+MEDIA_TYPES = {'t': 'track', 'p': 'playlist', 'a': 'album', 'f': 'album'}
+
 
 def main():
     # Get args
@@ -34,31 +34,7 @@ def main():
 
     # Check for auth flag / session settings
     RSF = RedseaSessionFile('./config/sessions.pk')
-    if args.urls[0] == 'auth' and len(args.urls) == 1:
-        print('\nThe "auth" command provides the following methods:')
-        print('\n  list:     list the currently stored sessions')
-        print('  add:      login and store a new session')
-        print('  remove:   permanently remove a stored session')
-        print('  default:  set a session as default')
-        print('  reauth:   reauthenticate with Tidal to get new sessionId')
-        print('\nUsage: redsea.py auth add\n')
-        exit()
-    elif args.urls[0] == 'auth' and len(args.urls) > 1:
-        if args.urls[1] == 'list':
-            RSF.list_sessions()
-            exit()
-        elif args.urls[1] == 'add':
-            RSF.new_session()
-            exit()
-        elif args.urls[1] == 'remove':
-            RSF.remove_session()
-            exit()
-        elif args.urls[1] == 'default':
-            RSF.set_default()
-            exit()
-        elif args.urls[1] == 'reauth':
-            RSF.reauth()
-            exit()
+    deal_with_auth(RSF, args)
 
     print(LOGO)
 
@@ -93,56 +69,10 @@ def main():
         session_gen = RSF.get_session()
 
         # Get media info
-        def get_tracks(media):
-            tracks = []
-            media_info = None
 
-            while True:
-                try:
-                    # Track
-                    if media['type'] == 't':
-                        tracks.append(md.api.get_track(media['id']))
-
-                    # Playlist
-                    elif media['type'] == 'p':
-
-                        # Make sure only tracks are in playlist items
-                        playlistItems = md.api.get_playlist_items(media['id'])['items']
-                        for item in playlistItems:
-                            if item['type'] == 'track':
-                                tracks.append(item['item'])
-
-                    # Album
-                    else:
-                        # Get album information
-                        media_info = md.api.get_album(media['id'])
-
-                        # Get a list of the tracks from the album
-                        tracks = md.api.get_album_tracks(media['id'])['items']
-
-                    return tracks, media_info
-
-                # Catch region error
-                except TidalError as e:
-                    if 'not found. This might be region-locked.' in str(e) and BRUTEFORCE:
-                        # Try again with a different session
-                        try:
-                            session, name = next(session_gen)
-                            md.api = TidalApi(session)
-                            print('Checking info fetch with session "{}" in region {}'.format(name, session.country_code))
-                            continue
-
-                        # Ran out of sessions
-                        except StopIteration as s:                    
-                            print(e)
-                            raise s
-
-                    # Skip or halt
-                    else:
-                        raise(e)
 
         try:
-            tracks, media_info = get_tracks(media=mt)
+            tracks, media_info = get_tracks(mt, md, BRUTEFORCE, session_gen)
         except StopIteration:
             # Let the user know we cannot download this release and skip it
             print('None of the available accounts were able to get info for release {}. Skipping..'.format(mt['id']))
@@ -217,6 +147,83 @@ def main():
                     (cm / len(media_to_download)) * 100))
 
     print('> All downloads completed. <')
+
+
+def deal_with_auth(RSF, args):
+    if args.urls[0] == 'auth' and len(args.urls) == 1:
+        print('\nThe "auth" command provides the following methods:')
+        print('\n  list:     list the currently stored sessions')
+        print('  add:      login and store a new session')
+        print('  remove:   permanently remove a stored session')
+        print('  default:  set a session as default')
+        print('  reauth:   reauthenticate with Tidal to get new sessionId')
+        print('\nUsage: redsea.py auth add\n')
+        exit()
+    elif args.urls[0] == 'auth' and len(args.urls) > 1:
+        if args.urls[1] == 'list':
+            RSF.list_sessions()
+            exit()
+        elif args.urls[1] == 'add':
+            RSF.new_session()
+            exit()
+        elif args.urls[1] == 'remove':
+            RSF.remove_session()
+            exit()
+        elif args.urls[1] == 'default':
+            RSF.set_default()
+            exit()
+        elif args.urls[1] == 'reauth':
+            RSF.reauth()
+            exit()
+
+
+def get_tracks(media, md, BRUTEFORCE, session_gen):
+    tracks = []
+    media_info = None
+
+    while True:
+        try:
+            # Track
+            if media['type'] == 't':
+                tracks.append(md.api.get_track(media['id']))
+
+            # Playlist
+            elif media['type'] == 'p':
+
+                # Make sure only tracks are in playlist items
+                playlistItems = md.api.get_playlist_items(media['id'])['items']
+                for item in playlistItems:
+                    if item['type'] == 'track':
+                        tracks.append(item['item'])
+
+            # Album
+            else:
+                # Get album information
+                media_info = md.api.get_album(media['id'])
+
+                # Get a list of the tracks from the album
+                tracks = md.api.get_album_tracks(media['id'])['items']
+
+            return tracks, media_info
+
+        # Catch region error
+        except TidalError as e:
+            if 'not found. This might be region-locked.' in str(e) and BRUTEFORCE:
+                # Try again with a different session
+                try:
+                    session, name = next(session_gen)
+                    md.api = TidalApi(session)
+                    print('Checking info fetch with session "{}" in region {}'.format(name, session.country_code))
+                    continue
+
+                # Ran out of sessions
+                except StopIteration as s:
+                    print(e)
+                    raise s
+
+            # Skip or halt
+            else:
+                raise(e)
 
 
 # Run from CLI - catch Ctrl-C and handle it gracefully

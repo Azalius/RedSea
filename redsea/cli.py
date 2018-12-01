@@ -46,16 +46,16 @@ def get_args():
     return parser.parse_args()
 
 
-def parse_media_option(mo):
+def parse_media_option(urls):
     opts = []
-    for m in mo:
-        if m.startswith('http'):
-            m = re.sub(r'tidal.com\/.{2}\/store\/', 'tidal.com/', m)
-            m = re.sub(r'tidal.com\/store\/', 'tidal.com/', m)
-            url = urlparse(m)
+    for url in urls:
+        if is_valid_url(url):
+            url = re.sub(r'tidal.com\/.{2}\/store\/', 'tidal.com/', url)
+            url = re.sub(r'tidal.com\/store\/', 'tidal.com/', url)
+            url = urlparse(url)
             components = url.path.split('/')
             if not components or len(components) <= 2:
-                print('Invalid URL: ' + m)
+                print('Invalid URL: ' + url)
                 exit()
             type_ = components[1]
             id_ = components[2]
@@ -67,12 +67,16 @@ def parse_media_option(mo):
                 type_ = 'p'
             opts.append({'type': type_, 'id': id_})
             continue
-        elif ':' in m and '#' in m:
-            ci = m.index(':')
-            hi = m.find('#')
-            hi = len(m) if hi == -1 else hi
-            o = {'type': m[:ci], 'id': m[ci + 1:hi], 'index': m[hi + 1:]}
+        elif ':' in url and '#' in url:
+            ci = url.index(':')
+            hi = url.find('#')
+            hi = len(url) if hi == -1 else hi
+            o = {'type': url[:ci], 'id': url[ci + 1:hi], 'index': url[hi + 1:]}
             opts.append(o)
         else:
-            print('Input "{}" does not appear to be a valid url.'.format(m))
+            print('Input "{}" does not appear to be a valid url.'.format(url))
     return opts
+
+
+def is_valid_url(url):
+    return url.startswith('http')
