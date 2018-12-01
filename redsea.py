@@ -8,7 +8,7 @@ from redsea.tagger import Tagger
 from redsea.tidal_api import TidalApi, TidalError
 from redsea.sessions import SimpleSessionFile
 
-from config.settings import PRESETS, BRUTEFORCEREGION
+from config.settings import PRESETS
 
 
 LOGO = """
@@ -39,7 +39,6 @@ def main():
     print(LOGO)
 
     # Load config
-    BRUTEFORCE = args.bruteforce or BRUTEFORCEREGION
     preset = PRESETS[args.preset]
 
     # Parse options
@@ -72,7 +71,7 @@ def main():
 
 
         try:
-            tracks, media_info = get_tracks(mt, md, BRUTEFORCE, session_gen)
+            tracks, media_info = get_tracks(mt, md, session_gen)
         except StopIteration:
             # Let the user know we cannot download this release and skip it
             print('None of the available accounts were able to get info for release {}. Skipping..'.format(mt['id']))
@@ -113,27 +112,6 @@ def main():
 
                 # Catch session audio stream privilege error
                 except AssertionError as e:
-                    if 'Unable to download track' in str(e) and BRUTEFORCE:
-
-                        # Try again with a different session
-                        try:
-                            # Reset generator if this is the first attempt
-                            if first:
-                                session_gen = RSF.get_session()
-                                first = False
-                            session, name = next(session_gen)
-                            md.api = TidalApi(session)
-                            print('Attempting audio stream with session "{}" in region {}'.format(name, session.country_code))
-                            continue
-                        
-                        # Ran out of sessions, skip track
-                        except StopIteration:                    
-                            # Let the user know we cannot download this release and skip it
-                            print('None of the available accounts were able to download track {}. Skipping..'.format(track['id']))
-                            break
-
-                    # Skip
-                    else:
                         print(str(e) + '. Skipping..')
 
             # Progress of current track
@@ -197,7 +175,7 @@ def deal_with_auth_old(RSF, args):
 
 
 
-def get_tracks(media, md, BRUTEFORCE, session_gen):
+def get_tracks(media, md, session_gen):
     tracks = []
     media_info = None
 
@@ -228,24 +206,7 @@ def get_tracks(media, md, BRUTEFORCE, session_gen):
                 tracks = md.api.get_album_tracks(media['id'])['items']
 
             return tracks, media_info
-
-        # Catch region error
         except TidalError as e:
-            if 'not found. This might be region-locked.' in str(e) and BRUTEFORCE:
-                # Try again with a different session
-                try:
-                    session, name = next(session_gen)
-                    md.api = TidalApi(session)
-                    print('Checking info fetch with session "{}" in region {}'.format(name, session.country_code))
-                    continue
-
-                # Ran out of sessions
-                except StopIteration as s:
-                    print(e)
-                    raise s
-
-            # Skip or halt
-            else:
                 raise(e)
 
 

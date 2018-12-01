@@ -31,9 +31,6 @@ AAC_96: 96Kbps AAC
 
 '''
 
-# BRUTEFORCEREGION: Attempts to download the track/album with all available accounts if dl fails
-BRUTEFORCEREGION = True
-
 PRESETS = {
 
     # Default settings / only download FLAC_16
