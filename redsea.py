@@ -96,7 +96,7 @@ def main():
             # Actually download the track (finally)
             while True:
                 try:
-                    md.download_media(track, preset['quality'], media_info)
+                    md.download_media(track, preset['quality'], args.outdir, media_info)
                     break
 
                 # Catch quality error

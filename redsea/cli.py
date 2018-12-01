@@ -17,11 +17,18 @@ def get_args():
         help='Select a download preset. Defaults to Lossless only. See /config/settings.py for presets')
 
     parser.add_argument(
+        '-o',
+        '--outdir',
+        default='.',
+        help='Specifies the output directory. Might need to wrap it in quotes')
+
+    parser.add_argument(
         '-b',
         '--bruteforce',
         action='store_true',
         default=False,
         help='Brute force the download with all available accounts')
+
 
     parser.add_argument(
         '-a',

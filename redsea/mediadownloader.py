@@ -123,7 +123,7 @@ class MediaDownloader(object):
             print(line)
         print('\t----')
 
-    def download_media(self, track_info, quality, album_info=None):
+    def download_media(self, track_info, quality, basepath=".", album_info=None):
         track_id = track_info['id']
         assert track_info['allowStreaming'], 'Unable to download track {0}: not allowed to stream/download'.format(track_id)
         
@@ -135,7 +135,7 @@ class MediaDownloader(object):
             album_info = self.api.get_album(track_info['album']['id'])
 
         # Make locations
-        album_location = path.join(
+        album_location = path.join(basepath,
             self.opts['path'], self.opts['album_format'].format(
                 **self._normalise_info(track_info, album_info, True)))
         track_file = self.opts['track_format'].format(
