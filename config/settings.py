@@ -21,7 +21,7 @@ save_album_json: save the album metadata as a json file
 tries: number of attempts before giving up on the download
 path: where to store downloaded files
 track_format: naming mask for tracks
-album_format: naming mask for abum directories
+album_format: naming mask for album directories
 
 === Formats ===
 MQA_FLAC_24: MQA Format / 24bit FLAC with high-frequency "folded" data

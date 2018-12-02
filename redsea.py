@@ -74,7 +74,7 @@ def main():
             tracks, media_info = get_tracks(mt, md, session_gen)
         except StopIteration:
             # Let the user know we cannot download this release and skip it
-            print('None of the available accounts were able to get info for release {}. Skipping..'.format(mt['id']))
+            print('The account is not able to get info for release {}. Skipping..'.format(mt['id']))
             continue
 
         total = len(tracks)
@@ -83,7 +83,7 @@ def main():
         if total == 1:
             print('<<< Downloading single track... >>>')
 
-        # Playlist or album
+        # Playlist or album or artist
         else:
             print('<<< Downloading {0}: {1} track(s) in total >>>'.format(
                 MEDIA_TYPES[mt['type']], total))

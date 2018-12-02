@@ -11,6 +11,8 @@ from .decryption import decrypt_file, decrypt_security_token
 from .tagger import FeaturingFormat
 from .tidal_api import TidalApi, TidalRequestError
 
+chunck_size = 1024
+
 
 def _mkdir_p(path):
     try:
@@ -37,8 +39,8 @@ class MediaDownloader(object):
             return False
         with open(where, 'wb') as f:
             cc = 0
-            for chunk in r.iter_content(chunk_size=1024):
-                cc += 1024
+            for chunk in r.iter_content(chunk_size=chunck_size):
+                cc += chunck_size
                 print(
                     "\tDownload progress: {0:.0f}%".format((cc / total) * 100),
                     end='\r')
@@ -135,8 +137,13 @@ class MediaDownloader(object):
             album_info = self.api.get_album(track_info['album']['id'])
 
         # Make locations
+        if path.isabs(self.opts['path']):
+            print("The preset path is absolute, ignoring -o option...")
+            basepath = self.opts["path"]
+        else :
+            basepath = path.join(basepath, self.opts['path'])
         album_location = path.join(basepath,
-            self.opts['path'], self.opts['album_format'].format(
+             self.opts['album_format'].format(
                 **self._normalise_info(track_info, album_info, True)))
         track_file = self.opts['track_format'].format(
             **self._normalise_info(track_info, album_info))
@@ -152,16 +159,7 @@ class MediaDownloader(object):
         # Attempt to get stream URL
         stream_data = self.get_stream_url(track_id, quality)
 
-        # Hacky way to get extension of file from URL
-        ftype = None
-        url = stream_data['url']
-        if url.find('.flac?') == -1:
-            if url.find('.m4a?') == -1:
-                ftype = ''
-            else:
-                ftype = 'm4a'
-        else:
-            ftype = 'flac'
+        ftype = self.get_file_extension(stream_data)
 
         if album_info['numberOfVolumes'] > 1:
             track_path = path.join(disc_location, track_file + '.' + ftype)
@@ -196,3 +194,14 @@ class MediaDownloader(object):
             os.remove(aa_location)
 
         return (album_location, temp_file)
+
+    def get_file_extension(self, stream_data):
+        url = stream_data['url']
+        if url.find('.flac?') == -1:
+            if url.find('.m4a?') == -1:
+                ftype = ''
+            else:
+                ftype = 'm4a'
+        else:
+            ftype = 'flac'
+        return ftype
