@@ -35,13 +35,6 @@ def get_args():
         help='Specifies the output directory. Might need to wrap it in quotes')
 
     parser.add_argument(
-        '-b',
-        '--bruteforce',
-        action='store_true',
-        default=False,
-        help='Brute force the download with all available accounts')
-
-    parser.add_argument(
         '-s',
         '--skip',
         action='store_true',

@@ -11,6 +11,8 @@ from .decryption import decrypt_file, decrypt_security_token
 from .tagger import FeaturingFormat
 from .tidal_api import TidalApi, TidalRequestError
 
+COVER_FILE = 'Cover.jpg'
+
 chunck_size = 1024
 
 
@@ -173,7 +175,7 @@ class MediaDownloader(object):
             key, nonce = decrypt_security_token(stream_data['encryptionKey'])
             decrypt_file(temp_file, key, nonce)
 
-        aa_location = path.join(album_location, 'Cover.jpg')
+        aa_location = path.join(album_location, COVER_FILE)
         if not path.isfile(aa_location):
             print('\tDownloading album art...')
             if not self._dl_picture(track_info['album']['cover'], aa_location):

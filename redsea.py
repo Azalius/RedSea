@@ -69,7 +69,6 @@ def main():
 
         # Get media info
 
-
         try:
             tracks, media_info = get_tracks(mt, md, session_gen)
         except StopIteration:
