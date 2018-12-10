@@ -1,10 +1,7 @@
 import errno
-import json
 import os
 import os.path as path
 import re
-import sys
-
 import requests
 
 from .decryption import decrypt_file, decrypt_security_token
@@ -12,7 +9,6 @@ from .tagger import FeaturingFormat
 from .tidal_api import TidalApi, TidalRequestError
 
 COVER_FILE = 'Cover.jpg'
-
 chunck_size = 1024
 
 
@@ -27,14 +23,13 @@ def _mkdir_p(path):
 
 
 class MediaDownloader(object):
-
     def __init__(self, api, options, tagger=None):
         self.api = api
         self.opts = options
         self.tm = tagger
 
     def _dl_url(self, url, where):
-        r = requests.get(url, stream=True)
+        r = requests.get(url)
         try:
             total = int(r.headers['content-length'])
         except KeyError:
@@ -163,10 +158,8 @@ class MediaDownloader(object):
 
         ftype = self.get_file_extension(stream_data)
 
-        if album_info['numberOfVolumes'] > 1:
-            track_path = path.join(disc_location, track_file + '.' + ftype)
-        else:
-            track_path = path.join(album_location, track_file + '.' + ftype)
+        if album_info['numberOfVolumes'] > 1:track_path = path.join(disc_location, track_file + '.' + ftype)
+        else:track_path = path.join(album_location, track_file + '.' + ftype)
 
         temp_file = self._dl_url(stream_data['url'], track_path)
 
@@ -184,26 +177,16 @@ class MediaDownloader(object):
         #Tagging
         print('\tTagging media file...')
 
-        if ftype == 'flac':
-            self.tm.tag_flac(temp_file, track_info, album_info, aa_location)
-        elif ftype == 'm4a':
-            self.tm.tag_m4a(temp_file, track_info, album_info, aa_location)
-        else:
-            print('\tUnknown file type to tag!')
-
-        # Cleanup
-        if not self.opts['keep_cover_jpg']:
-            os.remove(aa_location)
-
+        if ftype == 'flac':self.tm.tag_flac(temp_file, track_info, album_info, aa_location)
+        elif ftype == 'm4a':self.tm.tag_m4a(temp_file, track_info, album_info, aa_location)
+        else:print('\tUnknown file type to tag!')
+        if not self.opts['keep_cover_jpg']:os.remove(aa_location)
         return (album_location, temp_file)
 
     def get_file_extension(self, stream_data):
         url = stream_data['url']
         if url.find('.flac?') == -1:
-            if url.find('.m4a?') == -1:
-                ftype = ''
-            else:
-                ftype = 'm4a'
-        else:
-            ftype = 'flac'
+            if url.find('.m4a?') == -1:ftype = ''
+            else:ftype = 'm4a'
+        else: ftype = 'flac'
         return ftype

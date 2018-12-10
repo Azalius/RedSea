@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 import redsea.cli as cli
 
 from redsea.mediadownloader import MediaDownloader
@@ -33,13 +32,17 @@ def main():
     args = cli.get_args()
 
     # Check for auth flag / session settings
-    RSF = SimpleSessionFile('./config/sessions.pk')
-    deal_with_auth(RSF, args)
+    currentSession = SimpleSessionFile('./config/sessions.pk')
+    deal_with_auth(currentSession, args)
 
     print(LOGO)
 
     # Load config
-    preset = PRESETS[args.preset]
+    try:
+        preset = PRESETS[args.preset]
+    except KeyError :
+        print("Unknown preset : "+args.preset)
+        exit(2)
 
     # Parse options
     preset['quality'] = []
@@ -47,6 +50,7 @@ def main():
     preset['quality'].append('LOSSLESS') if preset['FLAC_16'] else None
     preset['quality'].append('HIGH') if preset['AAC_320'] else None
     preset['quality'].append('LOW') if preset['AAC_96'] else None
+
     media_to_download = cli.parse_media_option(args.urls)
 
     # Loop through media and download if possible
@@ -62,15 +66,14 @@ def main():
         print('<<< Getting {0} info... >>>'.format(MEDIA_TYPES[mt['type']]), end='\r')
         
         # Create a new TidalApi and pass it to a new MediaDownloader
-        md = MediaDownloader(TidalApi(RSF.load_session()), preset, Tagger(preset))
+        mediaDownloader = MediaDownloader(TidalApi(currentSession.load_session()), preset, Tagger(preset))
 
         # Create a new session generator in case we need to switch sessions
-        session_gen = RSF.get_session()
+        session_gen = currentSession.get_session()
 
         # Get media info
-
         try:
-            tracks, media_info = get_tracks(mt, md, session_gen)
+            tracks, media_info = get_tracks(mt, mediaDownloader)
         except StopIteration:
             # Let the user know we cannot download this release and skip it
             print('The account is not able to get info for release {}. Skipping..'.format(mt['id']))
@@ -89,12 +92,10 @@ def main():
 
         cur = 0
         for track in tracks:
-            first = True
-
             # Actually download the track (finally)
             while True:
                 try:
-                    md.download_media(track, preset['quality'], args.outdir, media_info)
+                    mediaDownloader.download_media(track, preset['quality'], args.outdir, media_info)
                     break
 
                 # Catch quality error
@@ -145,36 +146,7 @@ def deal_with_auth(RSF, args):
         exit()
 
 
-def deal_with_auth_old(RSF, args):
-    if args.urls[0] == 'auth' and len(args.urls) == 1:
-        print('\nThe "auth" command provides the following methods:')
-        print('\n  list:     list the currently stored sessions')
-        print('  add:      login and store a new session')
-        print('  remove:   permanently remove a stored session')
-        print('  default:  set a session as default')
-        print('  reauth:   reauthenticate with Tidal to get new sessionId')
-        print('\nUsage: redsea.py auth add\n')
-        exit()
-    elif args.urls[0] == 'auth' and len(args.urls) > 1:
-        if args.urls[1] == 'list':
-            RSF.list_sessions()
-            exit()
-        elif args.urls[1] == 'add':
-            RSF.new_session()
-            exit()
-        elif args.urls[1] == 'remove':
-            RSF.remove_session()
-            exit()
-        elif args.urls[1] == 'default':
-            RSF.set_default()
-            exit()
-        elif args.urls[1] == 'reauth':
-            RSF.reauth()
-            exit()
-
-
-
-def get_tracks(media, md, session_gen):
+def get_tracks(media, md):
     tracks = []
     media_info = None
 

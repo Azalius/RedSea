@@ -7,8 +7,7 @@ class SimpleSessionFile(TidalSessionFile):
     def new_session(self, session_name, username, password):
 
         try:
-            try:
-                super().remove("default")
+            try:super().remove("default")
             except: pass
             super().new_session("default", username, password)
         except TidalRequestError as e:
