@@ -1,6 +1,6 @@
 RedSea
 ======
-Music downloader and tagger for Tidal. For educational use only, and may break in the future.
+Easy to use music downloader and tagger for Tidal. For educational use only, and may break in the future. You still need a Tidal account, but you can just use the free trial month.  
 
 Introduction
 ------------
@@ -56,7 +56,7 @@ How to use
                             Set DIR as the outupt directory. By default it's the
                             same as redsea.py
 
-Tidal issues
+Issues
 ------------
 * Sometimes, tracks will be tagged with a useless version (for instance, "(album version)"), or have the same version twice "(album version)(album version)". This is because tracks in
     Tidal are not consistent in terms of metadata - sometimes a version may be included in the track title, included in the version field, or both.

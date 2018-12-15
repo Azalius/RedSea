@@ -8,6 +8,7 @@ from redsea.tidal_api import TidalApi, TidalError
 from redsea.sessions import SimpleSessionFile
 
 from config.settings import PRESETS
+import os
 
 
 LOGO = """
@@ -183,8 +184,12 @@ def get_tracks(media, md):
 
 # Run from CLI - catch Ctrl-C and handle it gracefully
 if __name__ == '__main__':
+    oldpath = str(os.path.curdir)
+    os.chdir(os.path.join(__file__, "..")) # so other path can be taken relatively
     try:
         main()
     except KeyboardInterrupt:
         print('\n^C pressed - abort')
+    finally:
+        os.chdir(oldpath)
         exit()
