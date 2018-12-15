@@ -57,7 +57,6 @@ def main():
     # Loop through media and download if possible
     cm = 0
     for mt in media_to_download:
-
         # Is it an acceptable media type? (skip if not)
         if not mt['type'] in MEDIA_TYPES:
             print('Unknown media type - ' + mt['type'])
@@ -68,9 +67,6 @@ def main():
         
         # Create a new TidalApi and pass it to a new MediaDownloader
         mediaDownloader = MediaDownloader(TidalApi(currentSession.load_session()), preset, Tagger(preset))
-
-        # Create a new session generator in case we need to switch sessions
-        session_gen = currentSession.get_session()
 
         # Get media info
         try:
@@ -188,8 +184,12 @@ if __name__ == '__main__':
     os.chdir(os.path.join(__file__, "..")) # so other path can be taken relatively
     try:
         main()
+        print("end of main")
     except KeyboardInterrupt:
         print('\n^C pressed - abort')
+    else:
+        print("Download over")
     finally:
+        print("Exiting...")
         os.chdir(oldpath)
         exit()
