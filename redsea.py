@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import redsea.cli as cli
-
 from redsea.mediadownloader import MediaDownloader
 from redsea.tagger import Tagger
 from redsea.tidal_api import TidalApi, TidalError
@@ -181,10 +180,9 @@ def get_tracks(media, md):
 # Run from CLI - catch Ctrl-C and handle it gracefully
 if __name__ == '__main__':
     oldpath = str(os.path.curdir)
-    os.chdir(os.path.join(__file__, "..")) # so other path can be taken relatively
+    os.chdir(os.path.abspath(os.path.join(os.path.abspath(__file__), os.pardir))) # so other path can be taken relatively
     try:
         main()
-        print("end of main")
     except KeyboardInterrupt:
         print('\n^C pressed - abort')
     else:
