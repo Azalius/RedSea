@@ -108,7 +108,12 @@ def main():
 
                 # Catch session audio stream privilege error
                 except AssertionError as e:
-                        print(str(e) + '. Skipping..')
+                    if args.skip is True:
+                        print(str(e) + '. Skipping...')
+                        break
+                    else:
+                        print(str(e) + '. Stopping. Use -s to skip instead')
+                        quit()
 
             # Progress of current track
             cur += 1
