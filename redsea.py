@@ -9,7 +9,6 @@ from redsea.sessions import SimpleSessionFile
 from config.settings import PRESETS
 import os
 
-
 LOGO = """
  /$$$$$$$                  /$$  /$$$$$$                     
 | $$__  $$                | $$ /$$__  $$                    
@@ -40,8 +39,8 @@ def main():
     # Load config
     try:
         preset = PRESETS[args.preset]
-    except KeyError :
-        print("Unknown preset : "+args.preset)
+    except KeyError:
+        print("Unknown preset : " + args.preset)
         exit(2)
 
     # Parse options
@@ -63,7 +62,7 @@ def main():
 
         cm += 1
         print('<<< Getting {0} info... >>>'.format(MEDIA_TYPES[mt['type']]), end='\r')
-        
+
         # Create a new TidalApi and pass it to a new MediaDownloader
         mediaDownloader = MediaDownloader(TidalApi(currentSession.load_session()), preset, Tagger(preset))
 
@@ -83,8 +82,7 @@ def main():
 
         # Playlist or album or artist
         else:
-            print('<<< Downloading {0}: {1} track(s) in total >>>'.format(
-                MEDIA_TYPES[mt['type']], total))
+            print('<<< Downloading {0}: {1} track(s) in total >>>'.format(MEDIA_TYPES[mt['type']], total))
 
         cur = 0
         for track in tracks:
@@ -98,12 +96,10 @@ def main():
                 except ValueError as e:
                     print("\t" + str(e))
                     if args.skip is True:
-                        print('Skipping track "{} - {}" due to insufficient quality'.format(
-                            track['artist']['name'], track['title']))
+                        print('Skipping track "{} - {}" due to insufficient quality'.format(track['artist']['name'], track['title']))
                         break
                     else:
-                        print('Halting on track "{} - {}" due to insufficient quality'.format(
-                            track['artist']['name'], track['title']))
+                        print('Halting on track "{} - {}" due to insufficient quality'.format(track['artist']['name'], track['title']))
                         quit()
 
                 # Catch session audio stream privilege error
@@ -117,13 +113,10 @@ def main():
 
             # Progress of current track
             cur += 1
-            print('=== {0}/{1} complete ({2:.0f}% done) ===\n'.format(
-                cur, total, (cur / total) * 100))
-        
+            print('=== {0}/{1} complete ({2:.0f}% done) ===\n'.format(cur, total, (cur / total) * 100))
+
         # Progress of queue
-        print('> Download queue: {0}/{1} items complete ({2:.0f}% done) <\n'.
-            format(cm, len(media_to_download),
-                    (cm / len(media_to_download)) * 100))
+        print('> Download queue: {0}/{1} items complete ({2:.0f}% done) <\n'.format(cm, len(media_to_download), (cm / len(media_to_download)) * 100))
 
     print('> All downloads completed. <')
 
@@ -143,7 +136,7 @@ def deal_with_auth(RSF, args):
     try:
         RSF.load_session()
     except Exception as e:
-        print("Authentication impossible : "+str(e))
+        print("Authentication impossible : " + str(e))
         exit()
 
 
@@ -159,7 +152,6 @@ def get_tracks(media, md):
 
             # Playlist
             elif media['type'] == 'p':
-
                 # Make sure only tracks are in playlist items
                 playlistItems = md.api.get_playlist_items(media['id'])['items']
                 for item in playlistItems:
@@ -179,13 +171,13 @@ def get_tracks(media, md):
 
             return tracks, media_info
         except TidalError as e:
-                raise(e)
+            raise (e)
 
 
 # Run from CLI - catch Ctrl-C and handle it gracefully
 if __name__ == '__main__':
     oldpath = str(os.path.curdir)
-    os.chdir(os.path.abspath(os.path.join(os.path.abspath(__file__), os.pardir))) # so other path can be taken relatively
+    os.chdir(os.path.abspath(os.path.join(os.path.abspath(__file__), os.pardir)))  # so other path can be taken relatively
     try:
         main()
     except KeyboardInterrupt:

@@ -55,15 +55,15 @@ def parse_media_option(urls):
     opts = []
     for url in urls:
         if is_valid_url(url):
-            url = re.sub(r'tidal.com\/.{2}\/store\/', 'tidal.com/', url)
-            url = re.sub(r'tidal.com\/store\/', 'tidal.com/', url)
+            url = re.sub(r'tidal.com\/.{2}\/store\/', 'tidal.com/browse/', url)
+            url = re.sub(r'tidal.com\/store\/', 'tidal.com/browse', url)
             url = urlparse(url)
             components = url.path.split('/')
             if not components or len(components) <= 2:
                 print('Invalid URL: ' + url)
                 exit()
-            type_ = components[1]
-            id_ = components[2]
+            type_ = components[2]
+            id_ = components[3]
             if type_ == 'album':
                 type_ = 'a'
             elif type_ == 'track':

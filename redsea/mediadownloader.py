@@ -43,7 +43,6 @@ class MediaDownloader(object):
                     end='\r')
                 if chunk:  # filter out keep-alive new chunks
                     f.write(chunk)
-            print()
         return where
 
     def _dl_picture(self, album_id, where):
